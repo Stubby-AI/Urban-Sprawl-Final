@@ -1,5 +1,5 @@
 {
-  "name": "GTA Population Growth Insights",
-  "description": "An elegant web application that provides insights into the population growth of the Greater Toronto Area, powered by Google's Gemini API.",
+  "name": "Urbis: Predicting Urban Growth",
+  "description": "Urbis is a revolutionary tool designed to empower urban planners by predicting urban growth using Google's Gemini API.",
   "requestFramePermissions": []
 }

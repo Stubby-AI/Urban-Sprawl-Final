@@ -12,14 +12,9 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
 
     Your analysis must include:
     1.  A main title for the page, specific to ${location}.
-    2.  A concise summary (around 50-70 words) about ${location}'s population growth.
-    3.  Exactly 3 key points, each with a short, catchy title and a detailed description (around 30-40 words each) relevant to ${location}, covering:
-        - The main drivers of growth.
-        - The impact on local infrastructure and housing.
-        - Future population projections and trends.
-    4.  Historical population data for the last 5 years and projected data for the next 5 years for a chart. For each year, provide the year, population, and whether the data is 'historical' or 'projected'.
-    5.  Exactly 3 predictions about the future of urban sprawl in ${location}, based on the context provided. Each prediction needs a short, insightful title and a detailed description (around 40-50 words).
-    6.  Exactly 3 predicted growth hotspots for the next 10 years. These predictions must be hyper-realistic and well-founded. Crucially, they must be STRICTLY WITHIN the geographical boundaries of ${location}. Do not suggest locations in adjacent municipalities. For each hotspot, provide:
+    2.  Historical population data for the last 5 years and projected data for the next 5 years for a chart. For each year, provide the year, population, and whether the data is 'historical' or 'projected'.
+    3.  Exactly 3 predictions about the future of urban sprawl in ${location}, based on the context provided. Each prediction needs a short, insightful title and a detailed description (around 40-50 words).
+    4.  Exactly 3 predicted growth hotspots for the next 10 years. These predictions must be hyper-realistic and well-founded. Crucially, they must be STRICTLY WITHIN the geographical boundaries of ${location}. Do not suggest locations in adjacent municipalities. For each hotspot, provide:
         - 'name': A human-readable name for the area (e.g., "East Harbour").
         - 'locationQuery': A highly specific, Google Maps-searchable string for the location (e.g., "East Harbour, Toronto, ON" or "Don Roadway and Lake Shore Boulevard East, Toronto"). This is critical for map accuracy.
         - 'reason': A detailed explanation of why this specific area will experience significant growth. Your reasoning MUST be grounded in the principles from the 'Context on Urban Sprawl Prediction' provided above. Explicitly consider factors like local zoning laws, political initiatives, major transit projects (like new subway lines), housing availability/affordability, and the potential for redevelopment of underutilized land.
@@ -40,22 +35,6 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
             title: {
               type: Type.STRING,
               description: "The main title for the web page."
-            },
-            summary: {
-              type: Type.STRING,
-              description: "A brief summary of the location's population growth."
-            },
-            keyPoints: {
-              type: Type.ARRAY,
-              description: "A list of key insights about the population growth.",
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  title: { type: Type.STRING, description: "The title of the key point." },
-                  description: { type: Type.STRING, description: "The detailed description of the key point." }
-                },
-                required: ["title", "description"]
-              }
             },
             populationTrend: {
               type: Type.ARRAY,
@@ -96,7 +75,7 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
               }
             }
           },
-          required: ["title", "summary", "keyPoints", "populationTrend", "urbanSprawlPredictions", "predictedHotspots"]
+          required: ["title", "populationTrend", "urbanSprawlPredictions", "predictedHotspots"]
         }
       }
     });
