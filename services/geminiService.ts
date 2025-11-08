@@ -24,10 +24,15 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
 
     Return the entire response as a single JSON object.
   `;
-  
+
   try {
     // Initialize GoogleGenAI with the API key from environment variables.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // ✅ Load API Key from .env
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+
+// ✅ Check if API key exists
+if (!apiKey) {
+  throw new Error("Google Gemini API key is missing! Please check your .env file.");
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",
       contents: prompt,
