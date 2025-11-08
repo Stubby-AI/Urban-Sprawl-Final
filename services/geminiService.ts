@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type, Content } from "@google/genai";
 import type { GtaPopulationData } from '../types';
 
-// The API key is sourced from process.env.VITE_GOOGLE_API_KEY.
+// The API key is sourced from process.env.API_KEY.
 // It is assumed to be pre-configured and available in the execution context.
 
 export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopulationData> {
@@ -27,8 +27,7 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
   
   try {
     // Initialize GoogleGenAI with the API key from environment variables.
-    // FIX: Use process.env.VITE_GOOGLE_API_KEY as per the guidelines.
-    const ai = new GoogleGenAI({ apiKey: process.env.VITE_GOOGLE_API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",
       contents: prompt,
@@ -121,8 +120,7 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
 export async function askChatbot(question: string, history: Content[]): Promise<string> {
   try {
     // Initialize GoogleGenAI with the API key from environment variables.
-    // FIX: Use process.env.VITE_GOOGLE_API_KEY as per the guidelines.
-    const ai = new GoogleGenAI({ apiKey: process.env.VITE_GOOGLE_API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const contents: Content[] = [
       ...history,
