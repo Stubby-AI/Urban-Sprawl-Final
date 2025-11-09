@@ -1,33 +1,43 @@
 import { GoogleGenAI, Type, Content } from "@google/genai";
-import type { GtaPopulationData } from '../types';
+import type { GtaPopulationData } from "../types";
 
-// The API key is sourced from process.env.API_KEY.
-// It is assumed to be pre-configured and available in the execution context.
+// ✅ Load API key correctly for Vite projects
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
+// Safety check for missing key
+if (!apiKey) {
+  console.error("❌ Google API key is missing. Please check your .env file.");
+  throw new Error("Google API key missing. Add VITE_GOOGLE_API_KEY in your .env file.");
+}
+
+// ===========================
+// Fetch GTA Population Info
+// ===========================
 export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopulationData> {
   const prompt = `
     Act as an expert urban planning analyst for the Greater Toronto Area.
-    Based on the provided context about predicting urban sprawl, generate a detailed analysis for ${location}. If the location is 'Greater Toronto Area', provide data for the entire region.
+    Based on the provided context about predicting urban sprawl, generate a detailed analysis for ${location}.
+    If the location is 'Greater Toronto Area', provide data for the entire region.
     
     Context on Urban Sprawl Prediction:
     "Predicting urban sprawl is a complex task that involves analyzing various factors and trends related to urban development. It is essential to consider a wide range of indicators and factors that can influence the extent and patterns of urban expansion. These indicators are typically derived from various data sources, including demographic, economic, environmental, and spatial data. Key indicators include population growth, economic indicators (job growth, income levels), Land Use and Land Cover (LULC), transportation infrastructure, zoning regulations, local politics, and proximity to services and natural features."
 
     Your analysis must include:
-    1.  A main title for the page, specific to ${location}.
-    2.  Historical population data for the last 5 years and projected data for the next 5 years for a chart. For each year, provide the year, population, and whether the data is 'historical' or 'projected'.
-    3.  A concise, natural-language summary (around 30-40 words) of the population trend data, highlighting key takeaways.
-    4.  Exactly 3 predictions about the future of urban sprawl in ${location}, based on the context provided. Each prediction needs a short, insightful title and a detailed description (around 40-50 words).
-    5.  Exactly 3 predicted growth hotspots for the next 10 years. These predictions must be hyper-realistic and well-founded. Crucially, they must be STRICTLY WITHIN the geographical boundaries of ${location}. Do not suggest locations in adjacent municipalities. For each hotspot, provide:
-        - 'name': A human-readable name for the area (e.g., "East Harbour").
-        - 'locationQuery': A highly specific, Google Maps-searchable string for the location (e.g., "East Harbour, Toronto, ON" or "Don Roadway and Lake Shore Boulevard East, Toronto"). This is critical for map accuracy.
-        - 'reason': A detailed explanation of why this specific area will experience significant growth. Your reasoning MUST be grounded in the principles from the 'Context on Urban Sprawl Prediction' provided above. Explicitly consider factors like local zoning laws, political initiatives, major transit projects (like new subway lines), housing availability/affordability, and the potential for redevelopment of underutilized land.
+    1. A main title for the page, specific to ${location}.
+    2. Historical population data for the last 5 years and projected data for the next 5 years for a chart.
+    3. A concise, natural-language summary (30-40 words) of the population trend data.
+    4. Exactly 3 predictions about the future of urban sprawl in ${location}, with short titles and detailed descriptions.
+    5. Exactly 3 predicted growth hotspots (strictly within ${location}), each with:
+        - 'name': A human-readable name for the area.
+        - 'locationQuery': A Google Maps-searchable string for accuracy.
+        - 'reason': A detailed explanation based on zoning, transit projects, housing, or redevelopment potential.
 
     Return the entire response as a single JSON object.
   `;
-  
+
   try {
-    // Initialize GoogleGenAI with the API key from environment variables.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",
       contents: prompt,
@@ -36,109 +46,112 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            title: {
-              type: Type.STRING,
-              description: "The main title for the web page."
-            },
+            title: { type: Type.STRING },
             populationTrend: {
               type: Type.ARRAY,
-              description: "Historical and projected population data for the location.",
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  year: { type: Type.INTEGER, description: "The year." },
-                  population: { type: Type.NUMBER, description: "The population number." },
-                  type: { type: Type.STRING, description: "Either 'historical' or 'projected'." }
+                  year: { type: Type.INTEGER },
+                  population: { type: Type.NUMBER },
+                  type: { type: Type.STRING },
                 },
-                required: ["year", "population", "type"]
-              }
+                required: ["year", "population", "type"],
+              },
             },
-            populationTrendSummary: {
-              type: Type.STRING,
-              description: "A concise summary of the population trend."
-            },
+            populationTrendSummary: { type: Type.STRING },
             urbanSprawlPredictions: {
               type: Type.ARRAY,
-              description: "Predictions about the future of urban sprawl.",
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  title: { type: Type.STRING, description: "The title of the prediction." },
-                  description: { type: Type.STRING, description: "The detailed description of the prediction." }
+                  title: { type: Type.STRING },
+                  description: { type: Type.STRING },
                 },
-                required: ["title", "description"]
-              }
+                required: ["title", "description"],
+              },
             },
             predictedHotspots: {
               type: Type.ARRAY,
-              description: "Predicted high-growth neighborhoods or areas for the next 10 years.",
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  name: { type: Type.STRING, description: "The human-readable name of the hotspot area (e.g., a neighborhood)." },
-                  locationQuery: { type: Type.STRING, description: "A highly specific, searchable string for Google Maps." },
-                  reason: { type: Type.STRING, description: "The detailed reason for the predicted growth." }
+                  name: { type: Type.STRING },
+                  locationQuery: { type: Type.STRING },
+                  reason: { type: Type.STRING },
                 },
-                required: ["name", "locationQuery", "reason"]
-              }
-            }
+                required: ["name", "locationQuery", "reason"],
+              },
+            },
           },
-          required: ["title", "populationTrend", "populationTrendSummary", "urbanSprawlPredictions", "predictedHotspots"]
-        }
-      }
+          required: [
+            "title",
+            "populationTrend",
+            "populationTrendSummary",
+            "urbanSprawlPredictions",
+            "predictedHotspots",
+          ],
+        },
+      },
     });
 
-    const jsonText = response.text.trim();
+    const jsonText = response.text?.trim();
     if (!jsonText) {
-        throw new Error("API returned an empty response.");
+      throw new Error("API returned an empty response.");
     }
 
     const parsedData: GtaPopulationData = JSON.parse(jsonText);
-    
-    // Sort data by year just in case the API doesn't
     parsedData.populationTrend.sort((a, b) => a.year - b.year);
-    
-    return parsedData;
 
+    return parsedData;
   } catch (error) {
-    console.error("Error in Gemini API service:", error);
+    console.error("❌ Error in Gemini API service:", error);
     if (error instanceof Error) {
-        // Check for common API key-related errors and provide a user-friendly message.
-        if (
-            error.message.includes('API key not valid') ||
-            error.message.includes('API Key must be set') ||
-            error.message.includes('Requested entity was not found')
-        ) {
-            throw new Error("The API key is invalid or missing. Please ensure it is configured correctly in your environment.");
-        }
+      if (
+        error.message.includes("API key not valid") ||
+        error.message.includes("API Key must be set") ||
+        error.message.includes("Requested entity was not found")
+      ) {
+        throw new Error(
+          "The API key is invalid or missing. Please ensure it is configured correctly in your environment."
+        );
+      }
     }
-    // Generic fallback for network errors, etc.
-    throw new Error("Failed to retrieve population data due to a network or API error. Please try again.");
+    throw new Error(
+      "Failed to retrieve population data due to a network or API error. Please try again."
+    );
   }
 }
 
-export async function askChatbot(question: string, history: Content[]): Promise<string> {
+// ===========================
+// Chatbot Interaction
+// ===========================
+export async function askChatbot(
+  question: string,
+  history: Content[]
+): Promise<string> {
   try {
-    // Initialize GoogleGenAI with the API key from environment variables.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
+    const ai = new GoogleGenAI({ apiKey });
+
     const contents: Content[] = [
       ...history,
-      { role: 'user', parts: [{ text: question }] }
+      { role: "user", parts: [{ text: question }] },
     ];
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",
       contents: contents,
       config: {
-        systemInstruction: "You are Urbo, a helpful AI assistant powered by Google Gemini. You specialize in the Greater Toronto Area's population growth, infrastructure, and urban planning, based on data presented in this application. Your responses must be very straight to the point. Use point forms (bullet points) wherever it makes sense to keep answers clear and easy to read. Stay strictly on the topic of GTA growth. If a question is off-topic, politely decline to answer and guide the user back to the relevant subject.",
-      }
+        systemInstruction:
+          "You are Urbo, a helpful AI assistant powered by Google Gemini. You specialize in the Greater Toronto Area's population growth, infrastructure, and urban planning. Your responses must be short, point-form, and factual. Stay on topic. If a question is unrelated, politely decline.",
+      },
     });
 
-    return response.text;
+    return response.text ?? "No response generated from Gemini API.";
   } catch (error) {
-    console.error("Error in chatbot service:", error);
-    // Re-throw a user-friendly error
-    throw new Error("Sorry, I couldn't get a response from the AI. Please try again.");
+    console.error("❌ Error in chatbot service:", error);
+    throw new Error(
+      "Sorry, I couldn't get a response from the AI. Please try again."
+    );
   }
 }
