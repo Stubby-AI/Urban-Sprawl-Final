@@ -11,6 +11,7 @@ import GtaMap from './components/GtaMap';
 import UrbanSprawlSection from './components/UrbanSprawlSection';
 import PredictedHotspots from './components/PredictedHotspots';
 import ChatModal from './components/ChatModal';
+import MobileBottomNav from './components/MobileBottomNav';
 import type { Content } from '@google/genai';
 
 const urbanSprawlFactors = [
@@ -122,47 +123,6 @@ const IntroPage: React.FC = () => (
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Real Estate Investors</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm leading-6">
               Identify high-yield investment opportunities before they become mainstream. Leverage our growth hotspot predictions to guide your portfolio strategy and maximize returns in the dynamic real estate market.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700">
-      <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white mb-8 text-center">
-        Specialized & Niche Applications
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div className="flex items-start space-x-4">
-          <div className="flex-shrink-0 bg-green-100 dark:bg-green-900/50 p-3 rounded-full">
-            <EnvironmentalIcon className="h-7 w-7 text-green-500 dark:text-green-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Environmental Scientists</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-6">
-              Model the ecological impact of urban expansion. Use growth forecasts to identify at-risk habitats, predict water pattern changes, and advocate for preserving green spaces.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start space-x-4">
-          <div className="flex-shrink-0 bg-red-100 dark:bg-red-900/50 p-3 rounded-full">
-            <InsuranceIcon className="h-7 w-7 text-red-500 dark:text-red-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Insurance Analysts</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-6">
-             Assess property risk by modeling exposure to climate-related events like flooding in newly populated zones based on development predictions.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start space-x-4">
-           <div className="flex-shrink-0 bg-purple-100 dark:bg-purple-900/50 p-3 rounded-full">
-            <PublicHealthIcon className="h-7 w-7 text-purple-500 dark:text-purple-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Public Health Officials</h3>
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-6">
-              Plan for future healthcare needs by projecting demand for hospitals and emergency services in growth areas, ensuring timely access to care for expanding communities.
             </p>
           </div>
         </div>
@@ -475,12 +435,25 @@ const App: React.FC = () => {
       }
   }
 
+  const handleOpenChat = () => {
+    // Add an introductory message if the chat is opened for the first time.
+    if (chatMessages.length === 0) {
+      setChatMessages([
+        {
+          role: 'model',
+          text: "Hi! I'm Urbo, your AI assistant. I can answer your questions about the Greater Toronto Area's population growth, urban planning, and infrastructure based on the data in this app. What would you like to know?"
+        }
+      ]);
+    }
+    setIsChatOpen(true);
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-200 font-sans transition-colors duration-500">
-      <Sidebar activePage={page} setPage={handleSetPage} onOpenChat={() => setIsChatOpen(true)} />
+      <Sidebar activePage={page} setPage={handleSetPage} onOpenChat={handleOpenChat} />
       <div className="flex-1 flex flex-col max-h-screen overflow-y-auto">
         <Header title={page === 'intro' ? 'Welcome to Urbis' : (data?.title || 'Urban Growth Analysis')} />
-        <main className="flex-1 p-4 sm:p-6 md:p-8">
+        <main className="flex-1 p-4 sm:p-6 md:p-8 pb-20 md:pb-8">
           
           <div className="max-w-4xl mx-auto space-y-8">
             {page === 'intro' && <IntroPage />}
@@ -516,6 +489,11 @@ const App: React.FC = () => {
           isLoading={isChatLoading}
         />
       )}
+      <MobileBottomNav 
+        activePage={page}
+        setPage={handleSetPage}
+        onOpenChat={handleOpenChat}
+      />
     </div>
   );
 };

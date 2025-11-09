@@ -111,9 +111,9 @@ const GtaMap: React.FC<GtaMapProps> = ({ location, onLocationChange, hotspots })
           <div className="absolute inset-0 flex items-center justify-center bg-transparent" aria-hidden="true">
             <div className="relative w-80 h-80 md:w-96 md:h-96 animate-fade-in">
               {/* Pulsating outer circle */}
-              <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping-slow"></div>
+              <div className="absolute inset-0 rounded-full bg-red-500/30 animate-ping-slow"></div>
               {/* Static inner circle/border */}
-              <div className="absolute inset-0 rounded-full border border-red-500/40"></div>
+              <div className="absolute inset-0 rounded-full border border-red-500/50"></div>
             </div>
           </div>
         )}

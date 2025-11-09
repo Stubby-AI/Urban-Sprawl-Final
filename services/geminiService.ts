@@ -24,15 +24,10 @@ export async function fetchGtaPopulationInfo(location: string): Promise<GtaPopul
 
     Return the entire response as a single JSON object.
   `;
-
+  
   try {
     // Initialize GoogleGenAI with the API key from environment variables.
-  // ✅ Load API Key from .env
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
-
-// ✅ Check if API key exists
-if (!apiKey) {
-  throw new Error("Google Gemini API key is missing! Please check your .env file.");
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",
       contents: prompt,
@@ -136,7 +131,7 @@ export async function askChatbot(question: string, history: Content[]): Promise<
       model: "gemini-2.5-pro",
       contents: contents,
       config: {
-        systemInstruction: "You are Urbo, a helpful AI assistant powered by Google Gemini. You specialize in the Greater Toronto Area's population growth, infrastructure, and urban planning, based on data presented in this application. Answer the user's questions concisely and stay strictly on the topic of GTA growth. If a question is off-topic, politely decline to answer and guide the user back to the relevant subject.",
+        systemInstruction: "You are Urbo, a helpful AI assistant powered by Google Gemini. You specialize in the Greater Toronto Area's population growth, infrastructure, and urban planning, based on data presented in this application. Your responses must be very straight to the point. Use point forms (bullet points) wherever it makes sense to keep answers clear and easy to read. Stay strictly on the topic of GTA growth. If a question is off-topic, politely decline to answer and guide the user back to the relevant subject.",
       }
     });
 
